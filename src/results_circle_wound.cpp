@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     double rho_wound = 0; // [cells/mm^3]
     double c_wound = c_max;
     double phif0_wound = 0.43;
-    double kappa0_wound = 0.33;
+    double kappa0_wound = 0.27;
     double a0x = 1/sqrt(2); // frand(-1,1.);
     double a0y = 1/sqrt(2); // frand(-1,1.);
     double a0z = 0.;
