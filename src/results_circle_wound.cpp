@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
 	myTissue.nBC_x = nBC_x;
 	myTissue.nBC_rho = nBC_rho;
 	myTissue.nBC_c = nBC_c;
-	myTissue.time_final = 14*24; // in hours
+	myTissue.time_final = 312; // in hours
 	myTissue.time_step = 0.1;
 	myTissue.tol = 1e-8;
 	myTissue.max_iter = 25;
