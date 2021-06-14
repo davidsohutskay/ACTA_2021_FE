@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
     // This will allow correct specification of the boundary values
 	std::vector<double> hexDimensions = {0.0,75.0,0.0,75.0,0.0,4.0};
 	std::vector<int> meshResolution =  {16,16,6};
-    std::string mesh_filename = "COMSOL_normal_wound_mesh.mphtxt";
+    std::string mesh_filename = "COMSOL_actual_wound_75x4.mphtxt";
     HexMesh myMesh = readCOMSOLInput(mesh_filename, hexDimensions, meshResolution);
 
     // Other possibles meshes:
