@@ -659,7 +659,7 @@ HexMesh readCOMSOLInput(const std::string& filename, const std::vector<double> &
 
     // READ VOLUME ELEMENTS
     myfile.open(filename);
-    std::string keyword_element = "4 # number of nodes per element";
+    std::string keyword_element = "8 # number of nodes per element";
     if (myfile.is_open()){
         // read in until you find the keyword ELEMENT
         for (std::string line; std::getline(myfile, line); ){
@@ -707,7 +707,7 @@ HexMesh readCOMSOLInput(const std::string& filename, const std::vector<double> &
     //std::vector<int> BOUNDARIES(NODES.size(),0);
     // READ SURFACE ELEMENTS
     myfile.open(filename);
-    std::string keyword_surface_element = "3 # number of nodes per element";
+    std::string keyword_surface_element = "4 # number of nodes per element";
     if (myfile.is_open()){
         // read in until you find the keyword ELEMENT
         for (std::string line; std::getline(myfile, line); ){
