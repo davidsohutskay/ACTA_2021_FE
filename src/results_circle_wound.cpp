@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 	double rho_phys = 1000.; // [cells/mm^3]
 	double c_max = 1.0e-4; // [g/mm3] from tgf beta review, 5e-5g/mm3 was good for tissues
 	//
-    double kv = 0.728021821/4; // volumetric penalty for incompressibility
+    	double kv = 0.728021821/4; // volumetric penalty for incompressibility
 	double k0 = 2.85088568e-3; // 0.0511; neo hookean for skin, used previously, in MPa
 	double kf = 5.41247068; // stiffness of collagen in MPa, from previous paper
 	double k2 = 1.91870009; // nonlinear exponential coefficient, non-dimensional
@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
 	double p_rho_c = p_rho/2; // production enhanced by the chem, if the chemical is normalized, then suggest two fold,
 	double p_rho_theta = p_rho/2; // enhanced production by theta
 	double K_rho_c = c_max/10.; // saturation of cell proliferation by chemical, this one is definitely not crucial, just has to be small enough <cmax
-    double K_rho_rho = 10000; // saturation of cell by cell, from steady state
-    double d_rho = p_rho*(1-rho_phys/K_rho_rho); // percent of cells die per day, 10% in the original, now much less, determined to keep cells in dermis constant
+    	double K_rho_rho = 10000; // saturation of cell by cell, from steady state
+    	double d_rho = p_rho*(1-rho_phys/K_rho_rho); // percent of cells die per day, 10% in the original, now much less, determined to keep cells in dermis constant
 	double vartheta_e = 2.; // physiological state of area stretch
 	double gamma_theta = 5.; // sensitivity of heaviside function
 	double p_c_rho = 90e-11/rho_phys; // 90.0e-16/rho_phys production of c by cells in g/cells/h
@@ -71,9 +71,9 @@ int main(int argc, char *argv[])
 	double K_c_c = 1.;// saturation of chem by chem, from steady state
 	double d_c = 0.01/10; // 0.01 decay of chemical in 1/hours
 	double bx = 0; // Body force
-    double by = 0; // Body force
-    double bz = 0; // Body force
-    //---------------------------------//
+    	double by = 0; // Body force
+    	double bz = 0; // Body force
+    	//---------------------------------//
 	std::vector<double> global_parameters = {kv,k0,kf,k2,t_rho,t_rho_c,K_t,K_t_c,D_rhorho,D_rhoc,D_cc,p_rho,p_rho_c,p_rho_theta,K_rho_c,K_rho_rho,d_rho,vartheta_e,gamma_theta,p_c_rho,p_c_thetaE,K_c_c,d_c,bx,by,bz};
 
 	//---------------------------------//
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 	// permanent contracture/growth
 	double tau_lamdaP_a = 0.001/(K_phi_rho+1); // 1.0 time constant for direction a, on the order of a year
 	double tau_lamdaP_s = 0.001/(K_phi_rho+1); // 1.0 time constant for direction s, on the order of a year
-    double tau_lamdaP_n = 1.0/(K_phi_rho+1); // 1.0 time constant for direction s, on the order of a year
+    	double tau_lamdaP_n = 1.0/(K_phi_rho+1); // 1.0 time constant for direction s, on the order of a year
 
     // solution parameters
     double tol_local = 1e-8; // local tolerance (also try 1e-5)
@@ -121,19 +121,19 @@ int main(int argc, char *argv[])
     double a0z = 0.;
     Vector3d a0_wound; a0_wound << a0x, a0y, a0z;
     a0_wound = a0_wound/sqrt(a0_wound.dot(a0_wound));
-	Vector3d lamda0_wound;lamda0_wound << 1.,1.,1.;
-	//---------------------------------//
+    Vector3d lamda0_wound;lamda0_wound << 1.,1.,1.;
+    //---------------------------------//
 	
 	
-	//---------------------------------//
-	// values for the healthy
-	double rho_healthy = rho_phys; // [cells/mm^3]
-	double c_healthy = 0.0;
-	double phif0_healthy = 1.0;
-	double kappa0_healthy = 0.23;
-	Vector3d a0_healthy;a0_healthy<<1.,0.,0.;
-	Vector3d lamda0_healthy;lamda0_healthy<<1.,1.,1.;
-	//---------------------------------//
+    //---------------------------------//
+    // values for the healthy
+    double rho_healthy = rho_phys; // [cells/mm^3]
+    double c_healthy = 0.0;
+    double phif0_healthy = 1.0;
+    double kappa0_healthy = 0.23;
+    Vector3d a0_healthy;a0_healthy<<1.,0.,0.;
+    Vector3d lamda0_healthy;lamda0_healthy<<1.,1.,1.;
+    //---------------------------------//
 
 
     //---------------------------------//
@@ -150,108 +150,23 @@ int main(int argc, char *argv[])
     }
     //---------------------------------//
 
-    // Parameters
-    /*double time = 10;
-    double dt = 0.1;
-    double c = c_wound;
-    double rho = rho_healthy;
-    double ip_phif = 1;
-    Vector3d ip_a0 = Vector3d(1/sqrt(2.),1/sqrt(2.),0.);
-    Vector3d ip_s0 = Rot90*ip_a0;
-    double ip_kappa = 0.25;
-    Vector3d ip_lamdaP = lamda0_healthy;
-    Matrix3d FF; FF << 1,1,0, 0,2,0, 0,0,1;
-    VectorXd dThetadCC(24);dThetadCC.setZero();
-    VectorXd dThetadrho(6);dThetadrho.setZero();
-    VectorXd dThetadc(6);dThetadc.setZero();
-    // FE with small steps for derivative
-    localWoundProblemExplicit2d(time,local_parameters,c,rho,FF,ip_phif,ip_a0,ip_s0,ip_kappa,ip_lamdaP,ip_phif,ip_a0,ip_s0,ip_kappa,ip_lamdaP,dThetadCC,dThetadrho,dThetadc);
-    std::cout << "\n" << dThetadCC << "\n";
-    std::cout << "\n" << dThetadrho << "\n";
-    std::cout << "\n" << dThetadc << "\n";
-    // BE with iteration
-    dThetadCC.setZero(); dThetadrho.setZero(); dThetadc.setZero();
-    ip_phif = 1;
-    ip_a0 = Vector3d(1/sqrt(2.),1/sqrt(2.),0.);
-    ip_s0 = Rot90*ip_a0;
-    ip_kappa = 0.25;
-    ip_lamdaP = lamda0_healthy;
-    //std::ofstream myfile;
-    //local_parameters[16] = 100;
-    //myfile.open("BE_results.csv");
-    for (int i=0;i<1;i++){
-        //myfile << std::fixed << std::setprecision(10) << dt*i << "," << ip_phif << "," << ip_kappa << "," << ip_a0(0) << "," << ip_a0(1) << "," << ip_lamdaP(0) << "," << ip_lamdaP(1) << "\n";
-        localWoundProblemImplicit2d(time,local_parameters,c,rho,FF,ip_phif,ip_a0,ip_s0,ip_kappa,ip_lamdaP,ip_phif,ip_a0,ip_s0,ip_kappa,ip_lamdaP,dThetadCC,dThetadrho,dThetadc);
-    }
-    //myfile.close();
-    std::cout << "\n" << dThetadCC << "\n";
-    std::cout << "\n" << dThetadrho << "\n";
-    std::cout << "\n" << dThetadc << "\n";
-    return 2;*/
-
-    // Parameters
-    /*double time = 10;
-    double dt = 0.1;
-    double c = c_wound;
-    double rho = rho_healthy;
-    double ip_phif = 1;
-    Vector3d ip_a0 = Vector3d(1,0,0);
-    Vector3d ip_s0 = Rot90*ip_a0;
-    Vector3d ip_n0 = ip_a0.cross(ip_s0);
-    if(ip_n0(2)<0){
-        ip_n0 = ip_s0.cross(ip_a0);
-    }
-    double ip_kappa = 0.25;
-    Vector3d ip_lamdaP = lamda0_healthy;
-    Matrix3d FF; FF << 1,1,0, 0,1,0, 0,2,1;
-    VectorXd dThetadCC(48);dThetadCC.setZero();
-    VectorXd dThetadrho(8);dThetadrho.setZero();
-    VectorXd dThetadc(8);dThetadc.setZero();
-    // FE with small steps for derivative
-    localWoundProblemExplicit(time,local_parameters,c,rho,FF,ip_phif,ip_a0,ip_s0,ip_n0,ip_kappa,ip_lamdaP,ip_phif,ip_a0,ip_s0,ip_n0,ip_kappa,ip_lamdaP,dThetadCC,dThetadrho,dThetadc);
-    std::cout << "\n" << dThetadCC << "\n";
-    std::cout << "\n" << dThetadrho << "\n";
-    std::cout << "\n" << dThetadc << "\n";
-    // BE with iteration
-    dThetadCC.setZero(); dThetadrho.setZero(); dThetadc.setZero();
-    ip_phif = 1;
-    ip_a0 = Vector3d(1,0,0);
-    ip_s0 = Rot90*ip_a0;
-    ip_n0 = ip_a0.cross(ip_s0);
-    if(ip_n0(2)<0){
-        ip_n0 = ip_s0.cross(ip_a0);
-    }
-    ip_kappa = 0.25;
-    ip_lamdaP = lamda0_healthy;
-    //std::ofstream myfile;
-    //local_parameters[16] = 100;
-    //myfile.open("BE_results.csv");
-    for (int i=0;i<1;i++){
-        //myfile << std::fixed << std::setprecision(10) << dt*i << "," << ip_phif << "," << ip_kappa << "," << ip_a0(0) << "," << ip_a0(1) << "," << ip_lamdaP(0) << "," << ip_lamdaP(1) << "\n";
-        //std::cout << "\n Implicit Euler Step: " << i;
-        //localWoundProblemImplicit_Shorter(time,local_parameters,c,rho,FF,ip_phif,ip_a0,ip_s0,ip_n0,ip_kappa,ip_lamdaP,ip_phif,ip_a0,ip_s0,ip_n0,ip_kappa,ip_lamdaP,dThetadCC,dThetadrho,dThetadc);
-    }
-    //myfile.close();
-    //std::cout << "\n" << dThetadCC << "\n";
-    //std::cout << "\n" << dThetadrho << "\n";
-    //std::cout << "\n" << dThetadc << "\n";
-    return 2;*/
+    
 	
 	//---------------------------------//
 	// create mesh (only nodes and elements)
 	std::cout<<"Going to create the mesh\n";
-    // The hex dimensions should be specified here even if you are importing a file!
-    // This will allow correct specification of the boundary values
+    	// The hex dimensions should be specified here even if you are importing a file!
+	// This will allow correct specification of the boundary values
 	std::vector<double> hexDimensions = {0.0,75.0,0.0,75.0,0.0,4.0};
 	std::vector<int> meshResolution =  {16,16,6};
-    std::string mesh_filename = "COMSOL_actual_wound_75x4.mphtxt";
-    HexMesh myMesh = readCOMSOLInput(mesh_filename, hexDimensions, meshResolution);
+	std::string mesh_filename = "COMSOL_actual_wound_75x4.mphtxt";
+    	HexMesh myMesh = readCOMSOLInput(mesh_filename, hexDimensions, meshResolution);
 
     // Other possibles meshes:
-	//HexMesh myLinearMesh = myHexMesh(hexDimensions, meshResolution);
+    //HexMesh myLinearMesh = myHexMesh(hexDimensions, meshResolution);
     //HexMesh myMesh = myQuadraticHexMesh(hexDimensions, meshResolution);
     //HexMesh myMesh = myQuadraticLagrangianHexMesh(hexDimensions, meshResolution);
-	//HexMesh myMesh = myMultiBlockMesh(hexDimensions, meshResolution);
+    //HexMesh myMesh = myMultiBlockMesh(hexDimensions, meshResolution);
     //std::string mesh_filename = "COMSOL_3D_hex_linear_100x30.vtk";
     //HexMesh myMesh = readParaviewInput(mesh_filename, hexDimensions, meshResolution);
     //HexMesh myMesh = SerendipityQuadraticHexMeshfromLinear(myLinearMesh, hexDimensions, meshResolution);
@@ -267,12 +182,12 @@ int main(int argc, char *argv[])
 	}
 	// prints nodes associated with each element
 	std::cout<<"elements\n";
-    for(int elemi=0;elemi<myMesh.n_elements;elemi++){
+    	for(int elemi=0;elemi<myMesh.n_elements;elemi++){
         for(int nodei=0;nodei<myMesh.elements[elemi].size();nodei++){
             std::cout<<myMesh.elements[elemi][nodei]<<" ";
         }
         std::cout<<"\n";
-    }
+    	}
 	// prints boundary
 	std::cout<<"boundary\n";
 	for(int nodei=0;nodei<myMesh.n_nodes;nodei++){
@@ -281,24 +196,24 @@ int main(int argc, char *argv[])
 	// create the other fields needed in the tissue struct.
 	int elem_size = myMesh.elements[0].size();
 	// integration points
-    std::vector<Vector4d> IP;
-    if(elem_size == 8 || elem_size == 20){
+    	std::vector<Vector4d> IP;
+    	if(elem_size == 8 || elem_size == 20){
         // linear hexahedron
         IP = LineQuadriIP();
-    }
-    else if(elem_size == 27){
+    	}
+    	else if(elem_size == 27){
         // quadratic hexahedron
         IP = LineQuadriIPQuadratic();
-    }
-    else if(elem_size==4){
+    	}
+    	else if(elem_size==4){
         // linear tetrahedron
         IP = LineQuadriIPTet();
-    }
-    else if(elem_size==10){
+    	}
+    	else if(elem_size==10){
         // quadratic tetrahedron
         IP = LineQuadriIPTetQuadratic();
-    }
-    int IP_size = IP.size();
+    	}
+    	int IP_size = IP.size();
 	//
 	// global fields rho and c initial conditions 
 	std::vector<double> node_rho0(myMesh.n_nodes,rho_healthy);
@@ -307,12 +222,12 @@ int main(int argc, char *argv[])
 	// values at the (8) integration points
 	std::vector<double> ip_phi0(myMesh.n_elements*IP_size,phif0_healthy);
 	std::vector<Vector3d> ip_a00(myMesh.n_elements*IP_size,a0_healthy);
-    std::vector<Vector3d> ip_s00(myMesh.n_elements*IP_size,s0_healthy);
-    std::vector<Vector3d> ip_n00(myMesh.n_elements*IP_size,n0_healthy);
+    	std::vector<Vector3d> ip_s00(myMesh.n_elements*IP_size,s0_healthy);
+    	std::vector<Vector3d> ip_n00(myMesh.n_elements*IP_size,n0_healthy);
 	std::vector<double> ip_kappa0(myMesh.n_elements*IP_size,kappa0_healthy);
 	std::vector<Vector3d> ip_lamda0(myMesh.n_elements*IP_size,lamda0_healthy);
 	//
-    double tol_boundary = 1e-5;
+    	double tol_boundary = 1e-5;
 	// define elliptical cylinder
 	double x_center = 37.5;
 	double y_center =  37.5;
@@ -393,35 +308,35 @@ int main(int argc, char *argv[])
             }
 			Vector3d X_IP; X_IP.setZero();
 			for(int nodej=0;nodej<elem_size;nodej++){
-			    //std::cout<<R[nodej]<<"\n";
-                //std::cout<<myMesh.nodes[myMesh.elements[elemi][nodej]]<<"\n";
+			    	//std::cout<<R[nodej]<<"\n";
+                		//std::cout<<myMesh.nodes[myMesh.elements[elemi][nodej]]<<"\n";
 				X_IP += R[nodej]*myMesh.nodes[myMesh.elements[elemi][nodej]];
 			}
 			//std::cout<<" IP node " << ip << " reference coordinates: " <<xi<< " " <<eta << " " <<zeta<< " "<<"\n";
-            //std::cout<<"Element " << elemi <<" IP node " << ip << " coordinates: " <<X_IP(0)<< " " <<X_IP(1) << " " <<X_IP(2)<< " "<<"\n";
-            double check_ellipse_ip = pow((X_IP(0)-x_center)*cos(alpha_ellipse)+(X_IP(1)-y_center)*sin(alpha_ellipse),2)/(x_axis*x_axis) +\
+            		//std::cout<<"Element " << elemi <<" IP node " << ip << " coordinates: " <<X_IP(0)<< " " <<X_IP(1) << " " <<X_IP(2)<< " "<<"\n";
+            		double check_ellipse_ip = pow((X_IP(0)-x_center)*cos(alpha_ellipse)+(X_IP(1)-y_center)*sin(alpha_ellipse),2)/(x_axis*x_axis) +\
 						pow((X_IP(0)-x_center)*sin(alpha_ellipse)+(X_IP(1)-y_center)*cos(alpha_ellipse),2)/(y_axis*y_axis);
-            //std::cout<<"Check ellipse: " << check_ellipse_ip <<"\n";
+            		//std::cout<<"Check ellipse: " << check_ellipse_ip <<"\n";
 			if(check_ellipse_ip<=1.){
 				if(X_IP(2)>=z_axis){
 					// inside cylinder
-                    //a0x = frand(-1,1.);
-                    //a0y = frand(-1,1.);
-                    //a0z = 0.;
-                    //a0_wound << a0x, a0y, a0z;
-                    //a0_wound = a0_wound/sqrt(a0_wound.dot(a0_wound));
-                    //s0_wound = Rot90*a0_wound;
-                    //n0_wound = s0_wound.cross(a0_wound);
-                    //if(n0_wound(2)<0){
-                    //    n0_wound = a0_wound.cross(s0_wound);
-                    //}
-                    std::cout<<"IP node: "<<IP_size*elemi+ip<<"\n";
-                    ip_phi0[elemi*IP_size+ip] = phif0_wound;
+                    			//a0x = frand(-1,1.);
+                    			//a0y = frand(-1,1.);
+                    			//a0z = 0.;
+                    			//a0_wound << a0x, a0y, a0z;
+                    			//a0_wound = a0_wound/sqrt(a0_wound.dot(a0_wound));
+                    			//s0_wound = Rot90*a0_wound;
+                    			//n0_wound = s0_wound.cross(a0_wound);
+                    			//if(n0_wound(2)<0){
+                    			//    n0_wound = a0_wound.cross(s0_wound);
+                    			//}
+                    			std::cout<<"IP node: "<<IP_size*elemi+ip<<"\n";
+                    			ip_phi0[elemi*IP_size+ip] = phif0_wound;
 					//ip_phi0[elemi*IP_size+ip] = 1. - phif0_wound*(X_IP(2)-z_axis)/(20-z_axis);
-                    //ip_phi0[elemi*IP_size+ip] = phif0_wound*(X_IP(2)-z_axis)/(20-z_axis);
-                    ip_a00[elemi*IP_size+ip] = a0_wound;
-                    ip_s00[elemi*IP_size+ip] = s0_wound;
-                    ip_n00[elemi*IP_size+ip] = n0_wound;
+                    			//ip_phi0[elemi*IP_size+ip] = phif0_wound*(X_IP(2)-z_axis)/(20-z_axis);
+                    			ip_a00[elemi*IP_size+ip] = a0_wound;
+                    			ip_s00[elemi*IP_size+ip] = s0_wound;
+                    			ip_n00[elemi*IP_size+ip] = n0_wound;
 					ip_kappa0[elemi*IP_size+ip] = kappa0_wound;
 					ip_lamda0[elemi*IP_size+ip] = lamda0_wound;
 				}
@@ -446,7 +361,7 @@ int main(int argc, char *argv[])
 //                ip_kappa0[elemi*IP_size+ip] = kappa0_wound;
 //                ip_lamda0[elemi*IP_size+ip] = lamda0_wound;
 //            }
-            //-----------------//
+//-----------------//
 		}
 	}
 	// neumann boundary conditions.
@@ -458,12 +373,12 @@ int main(int argc, char *argv[])
 	tissue myTissue;
 	// connectivity
 	myTissue.vol_elem_connectivity = myMesh.elements;
-    myTissue.surf_elem_connectivity = myMesh.surface_elements;
+    	myTissue.surf_elem_connectivity = myMesh.surface_elements;
 	// parameters
 	myTissue.global_parameters = global_parameters;
 	myTissue.local_parameters = local_parameters;
 	myTissue.boundary_flag = myMesh.boundary_flag;
-    myTissue.surface_boundary_flag = myMesh.surface_boundary_flag;
+    	myTissue.surface_boundary_flag = myMesh.surface_boundary_flag;
 	//
 	myTissue.node_X = myMesh.nodes;
 	myTissue.node_x = myMesh.nodes;
@@ -475,20 +390,20 @@ int main(int argc, char *argv[])
 	myTissue.ip_phif = ip_phi0;	
 	myTissue.ip_a0_0 = ip_a00;
 	myTissue.ip_a0 = ip_a00;
-    myTissue.ip_s0_0 = ip_s00;
-    myTissue.ip_s0 = ip_s00;
-    myTissue.ip_n0_0 = ip_n00;
-    myTissue.ip_n0 = ip_n00;
-    myTissue.ip_kappa_0 = ip_kappa0;
+    	myTissue.ip_s0_0 = ip_s00;
+    	myTissue.ip_s0 = ip_s00;
+    	myTissue.ip_n0_0 = ip_n00;
+    	myTissue.ip_n0 = ip_n00;
+    	myTissue.ip_kappa_0 = ip_kappa0;
 	myTissue.ip_kappa = ip_kappa0;	
 	myTissue.ip_lamdaP_0 = ip_lamda0;	
 	myTissue.ip_lamdaP = ip_lamda0;
-    myTissue.ip_lamdaE = ip_lamda0;
-    std::vector<Matrix3d> ip_strain(myMesh.n_elements*IP_size,Matrix3d::Identity(3,3));
-    std::vector<Matrix3d> ip_stress(myMesh.n_elements*IP_size,Matrix3d::Zero(3,3));
+    	myTissue.ip_lamdaE = ip_lamda0;
+    	std::vector<Matrix3d> ip_strain(myMesh.n_elements*IP_size,Matrix3d::Identity(3,3));
+    	std::vector<Matrix3d> ip_stress(myMesh.n_elements*IP_size,Matrix3d::Zero(3,3));
 	myTissue.ip_strain = ip_strain;
-    myTissue.ip_stress = ip_stress;
-    //
+    	myTissue.ip_stress = ip_stress;
+    	//
 	myTissue.eBC_x = eBC_x;
 	myTissue.eBC_rho = eBC_rho;
 	myTissue.eBC_c = eBC_c;
@@ -501,15 +416,15 @@ int main(int argc, char *argv[])
 	myTissue.max_iter = 25;
 	myTissue.n_node = myMesh.n_nodes;
 	myTissue.n_vol_elem = myMesh.n_elements;
-    myTissue.n_surf_elem = myMesh.n_surf_elements;
+    	myTissue.n_surf_elem = myMesh.n_surf_elements;
 	myTissue.n_IP = IP_size*myMesh.n_elements;
 	//
 	std::cout<<"filling dofs...\n";
 	fillDOFmap(myTissue);
 	std::cout<<"going to eval jacobians...\n";
 	evalElemJacobians(myTissue);
-    std::cout<<"going to eval surface jacobians...\n";
-    evalElemJacobiansSurface(myTissue);
+    	std::cout<<"going to eval surface jacobians...\n";
+    	evalElemJacobiansSurface(myTissue);
 	//
 	//print out the Jacobians
 	std::cout<<"element jacobians\nJacobians= ";
@@ -520,15 +435,15 @@ int main(int argc, char *argv[])
 			std::cout<<"ip; "<<j<<"\n"<<myTissue.elem_jac_IP[i][j]<<"\n";
 		}
 	}
-    //print out the surface Jacobians
-    std::cout<<"element surface jacobians\nSurface Jacobians= ";
-    std::cout<<myTissue.elem_jac_IP_surface.size()<<"\n";
-    for(int i=0;i<myTissue.elem_jac_IP_surface.size();i++){
-        std::cout<<"element: "<<i<<"\n";
-        for(int j=0;j<IP_size;j++){
-            std::cout<<"ip; "<<j<<"\n"<<myTissue.elem_jac_IP_surface[i][j]<<"\n";
-        }
-    }
+    	//print out the surface Jacobians
+    	std::cout<<"element surface jacobians\nSurface Jacobians= ";
+    	std::cout<<myTissue.elem_jac_IP_surface.size()<<"\n";
+    	for(int i=0;i<myTissue.elem_jac_IP_surface.size();i++){
+        	std::cout<<"element: "<<i<<"\n";
+        	for(int j=0;j<IP_size;j++){
+            	std::cout<<"ip; "<<j<<"\n"<<myTissue.elem_jac_IP_surface[i][j]<<"\n";
+        	}
+    	}
 	// print out the forward dof map
 	std::cout<<"Total :"<<myTissue.n_dof<<" dof\n";
 	for(int i=0;i<myTissue.dof_fwd_map_x.size();i++){
