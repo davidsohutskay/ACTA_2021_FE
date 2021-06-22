@@ -616,9 +616,6 @@ void evalWound(
         //-------------------------------------------//
         // EXTRA DERIVATIVE FOR THE BOUNDARY ELEMENTS
         //-------------------------------------------//
-//        // This is probably not correct
-//        // I should do something like the subelement method
-//        // It converges without this, but I will pass it for now
 //        // I need linCC_Voigt to convert dphifdCC to dphifdu
 //        ip_dphifdrho.push_back(dphifdrho);
 //        ip_dphifdc.push_back(dphifdc);
@@ -1787,7 +1784,7 @@ void evalS(const std::vector<double> &global_parameters, const double& phif,Vect
     //---------------------------------//
     // PARAMETERS
     //
-double kv = global_parameters[0]; // incompressibility penalty
+    double kv = global_parameters[0]; // incompressibility penalty
     double k0 = global_parameters[1]; // neo hookean
     double kf = global_parameters[2]; // stiffness of collagen
     double k2 = global_parameters[3]; // nonlinear exponential
