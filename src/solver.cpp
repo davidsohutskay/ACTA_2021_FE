@@ -259,7 +259,7 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
     int slow_iter = 0;
     int total_slowdown = 1;
 
-	const int n_dof = myTissue.n_dof;
+    const int n_dof = myTissue.n_dof;
     int elem_size = myTissue.vol_elem_connectivity[0].size();
     int surf_elem_size = myTissue.surf_elem_connectivity[0].size();
     int n_coord = myTissue.node_X[0].size();
@@ -305,7 +305,7 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
 	std::stringstream ss;
 	ss << "REF";
 	std::string filename_step = filename + ss.str()+".vtk";
-    std::string filename_step2 = filename + "second_" + ss.str()+".vtk";
+        std::string filename_step2 = filename + "second_" + ss.str()+".vtk";
 	//std::cout<<"write paraview\n";
 	writeParaview(myTissue,filename_step.c_str(),filename_step2.c_str());
 	//std::cout<<"declare variables for the solver\n";
@@ -318,7 +318,7 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
 
 	// LOOP OVER TIME
 	std::cout<<"start loop over time\n";
-    int iter;
+        int iter;
 	for(int step=0;step<total_steps;step++)
 	{
 		// GLOBAL NEWTON-RAPHSON ITERATION
@@ -328,40 +328,40 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
 		//std::cout<<"tissue tolerance: "<<myTissue.tol<<"\n";
 		//std::cout<<"max iterations: "<<myTissue.max_iter<<"\n";
 
-        //------------------------//
+                //------------------------//
 		// Dirichlet conditions
-        //------------------------//
-        /*int n_node = myTissue.node_x.size();
-        for(int i=0;i<n_node;i++){
+        	//------------------------//
+        	/*int n_node = myTissue.node_x.size();
+        	for(int i=0;i<n_node;i++){
 		    // Ideally we would loop over different eBCx to apply at different faces
 		    // But its kind of tricky because we would need multiple flags
 		    // For now I will just move all the nodes on one face while leaving the other fixed
 		    // Make sure to use with the updated eBC conditions in the myMeshGenerator file!
-            if(myTissue.boundary_flag[i] == 2){
-                int j = 0; // Only move the x coordinate in this case
-                //std::cout<<"\n Before \n"<<myTissue.node_x[i];
-                myTissue.node_x[i](j) = myTissue.node_x[i](j) + (1/total_steps)*20;
-                //std::cout<<"\n After \n"<<myTissue.node_x[i];
-            }
+	            if(myTissue.boundary_flag[i] == 2){
+                	int j = 0; // Only move the x coordinate in this case
+	                //std::cout<<"\n Before \n"<<myTissue.node_x[i];
+        	        myTissue.node_x[i](j) = myTissue.node_x[i](j) + (1/total_steps)*20;
+	                //std::cout<<"\n After \n"<<myTissue.node_x[i];
+        	    }
 		}*/
 
 		while(residuum>myTissue.tol && iter<myTissue.max_iter)
 		{
-            // reset the solvers
-            KK2.setZero();
-            RR.setZero();
-            KK_triplets.clear();
-            SOL.setZero();
-            std::vector<double> node_phi(myTissue.n_node,0); node_phi.clear();
-            std::vector<int> node_ip_count(myTissue.n_node,0); node_ip_count.clear();
-            std::vector<Vector3d> node_dphifdu(myTissue.n_node,Vector3d::Zero()); node_dphifdu.clear();
-            std::vector<double> node_dphifdrho(myTissue.n_node,0); node_dphifdrho.clear();
-            std::vector<double> node_dphifdc(myTissue.n_node,0); node_dphifdc.clear();
+        	    // reset the solvers
+	            KK2.setZero();
+        	    RR.setZero();
+	            KK_triplets.clear();
+	            SOL.setZero();
+        	    std::vector<double> node_phi(myTissue.n_node,0); node_phi.clear();
+	            std::vector<int> node_ip_count(myTissue.n_node,0); node_ip_count.clear();
+	            std::vector<Vector3d> node_dphifdu(myTissue.n_node,Vector3d::Zero()); node_dphifdu.clear();
+        	    std::vector<double> node_dphifdrho(myTissue.n_node,0); node_dphifdrho.clear();
+	            std::vector<double> node_dphifdc(myTissue.n_node,0); node_dphifdc.clear();
 
             // START LOOP OVER ELEMENTS
 #pragma omp parallel for
-            for(int ei=0;ei<myTissue.n_vol_elem;ei++)
-            {
+		for(int ei=0;ei<myTissue.n_vol_elem;ei++)
+		{
             	// element stuff
             	
             	// connectivity of the linear elements
@@ -397,7 +397,7 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
                 std::vector<double> ip_dphifdrho(IP_size,0); ip_dphifdrho.clear();
                 std::vector<double> ip_dphifdc(IP_size,0); ip_dphifdc.clear();
 
-				for(int ni=0;ni<elem_size;ni++) {
+		for(int ni=0;ni<elem_size;ni++) {
                     // deformed positions
                     node_x_ni.push_back(myTissue.node_x[elem_ei[ni]]);
 
@@ -408,22 +408,22 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
                     node_c_ni.push_back(myTissue.node_c[elem_ei[ni]]);
                 }
 
-				for(int ipi=0;ipi<IP_size;ipi++){
-					// structural variables
-					ip_phif_0_pi.push_back(myTissue.ip_phif_0[ei*IP_size+ipi]);
-					ip_phif_pi.push_back(myTissue.ip_phif[ei*IP_size+ipi]);
-					ip_a0_0_pi.push_back(myTissue.ip_a0_0[ei*IP_size+ipi]);
-					ip_a0_pi.push_back(myTissue.ip_a0[ei*IP_size+ipi]);
-                    ip_s0_0_pi.push_back(myTissue.ip_s0_0[ei*IP_size+ipi]);
-                    ip_s0_pi.push_back(myTissue.ip_s0[ei*IP_size+ipi]);
-                    ip_n0_0_pi.push_back(myTissue.ip_n0_0[ei*IP_size+ipi]);
-                    ip_n0_pi.push_back(myTissue.ip_n0[ei*IP_size+ipi]);
-					ip_kappa_0_pi.push_back(myTissue.ip_kappa_0[ei*IP_size+ipi]);
-					ip_kappa_pi.push_back(myTissue.ip_kappa[ei*IP_size+ipi]);
-					ip_lamdaP_0_pi.push_back(myTissue.ip_lamdaP_0[ei*IP_size+ipi]);
-					ip_lamdaP_pi.push_back(myTissue.ip_lamdaP[ei*IP_size+ipi]);
-                    ip_lamdaE_pi.push_back(myTissue.ip_lamdaE[ei*IP_size+ipi]);
-				}
+		for(int ipi=0;ipi<IP_size;ipi++){
+		// structural variables
+			ip_phif_0_pi.push_back(myTissue.ip_phif_0[ei*IP_size+ipi]);
+			ip_phif_pi.push_back(myTissue.ip_phif[ei*IP_size+ipi]);
+			ip_a0_0_pi.push_back(myTissue.ip_a0_0[ei*IP_size+ipi]);
+			ip_a0_pi.push_back(myTissue.ip_a0[ei*IP_size+ipi]);
+               		ip_s0_0_pi.push_back(myTissue.ip_s0_0[ei*IP_size+ipi]);
+               		ip_s0_pi.push_back(myTissue.ip_s0[ei*IP_size+ipi]);
+                    	ip_n0_0_pi.push_back(myTissue.ip_n0_0[ei*IP_size+ipi]);
+                    	ip_n0_pi.push_back(myTissue.ip_n0[ei*IP_size+ipi]);
+			ip_kappa_0_pi.push_back(myTissue.ip_kappa_0[ei*IP_size+ipi]);
+			ip_kappa_pi.push_back(myTissue.ip_kappa[ei*IP_size+ipi]);
+			ip_lamdaP_0_pi.push_back(myTissue.ip_lamdaP_0[ei*IP_size+ipi]);
+			ip_lamdaP_pi.push_back(myTissue.ip_lamdaP[ei*IP_size+ipi]);
+                    	ip_lamdaE_pi.push_back(myTissue.ip_lamdaE[ei*IP_size+ipi]);
+		}
 				
             	// and calculate the element Re and Ke
             	// pieces of the Residuals
@@ -460,27 +460,28 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
             	Re_rho, Ke_rho_x, Ke_rho_rho, Ke_rho_c,
             	Re_c, Ke_c_x, Ke_c_rho, Ke_c_c);
 
-				//std::cout<<"Ke_x_x\n"<<Ke_x_x<<"\n";
-				//std::cout<<"Ke_x_rho\n"<<Ke_x_rho<<"\n";
-				//std::cout<<"Ke_x_c\n"<<Ke_x_c<<"\n";
-				//std::cout<<"Ke_rho_x\n"<<Ke_rho_x<<"\n";
-				//std::cout<<"Ke_rho_rho\n"<<Ke_rho_rho<<"\n";
-				//std::cout<<"Ke_rho_c\n"<<Ke_rho_c<<"\n";
-				//std::cout<<"Ke_c_x\n"<<Ke_c_x<<"\n";
-				//std::cout<<"Ke_c_rho\n"<<Ke_c_rho<<"\n";
-				//std::cout<<"Ke_c_c\n"<<Ke_c_c<<"\n";
-				// store the new IP values
+		//std::cout<<"Ke_x_x\n"<<Ke_x_x<<"\n";
+		//std::cout<<"Ke_x_rho\n"<<Ke_x_rho<<"\n";
+		//std::cout<<"Ke_x_c\n"<<Ke_x_c<<"\n";
+		//std::cout<<"Ke_rho_x\n"<<Ke_rho_x<<"\n";
+		//std::cout<<"Ke_rho_rho\n"<<Ke_rho_rho<<"\n";
+		//std::cout<<"Ke_rho_c\n"<<Ke_rho_c<<"\n";
+		//std::cout<<"Ke_c_x\n"<<Ke_c_x<<"\n";
+		//std::cout<<"Ke_c_rho\n"<<Ke_c_rho<<"\n";
+		//std::cout<<"Ke_c_c\n"<<Ke_c_c<<"\n";
+		// store the new IP values
+			
 #pragma omp critical
             	for(int ipi=0;ipi<IP_size;ipi++){
             		myTissue.ip_phif[ei*IP_size+ipi] = ip_phif_pi[ipi];
             		myTissue.ip_a0[ei*IP_size+ipi] = ip_a0_pi[ipi];
-                    myTissue.ip_s0[ei*IP_size+ipi] = ip_s0_pi[ipi];
-                    myTissue.ip_n0[ei*IP_size+ipi] = ip_n0_pi[ipi];
+                    	myTissue.ip_s0[ei*IP_size+ipi] = ip_s0_pi[ipi];
+                    	myTissue.ip_n0[ei*IP_size+ipi] = ip_n0_pi[ipi];
             		myTissue.ip_kappa[ei*IP_size+ipi] = ip_kappa_pi[ipi];
             		myTissue.ip_lamdaP[ei*IP_size+ipi] = ip_lamdaP_pi[ipi];
-                    myTissue.ip_lamdaE[ei*IP_size+ipi] = ip_lamdaE_pi[ipi];
-                    myTissue.ip_strain[ei*IP_size+ipi] = ip_strain[ipi];
-                    myTissue.ip_stress[ei*IP_size+ipi] = ip_stress[ipi];
+                    	myTissue.ip_lamdaE[ei*IP_size+ipi] = ip_lamdaE_pi[ipi];
+                    	myTissue.ip_strain[ei*IP_size+ipi] = ip_strain[ipi];
+                    	myTissue.ip_stress[ei*IP_size+ipi] = ip_stress[ipi];
 
                     // In order to apply certain boundary conditions, we may also need to extrapolate phi to the nodes
                     if(IP_size == elem_size){
@@ -507,89 +508,90 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
 
             	// LOOP OVER NODES
 #pragma omp critical
-				for(int nodei=0;nodei<elem_size;nodei++){
-					// ASSEMBLE DISPLACEMENT RESIDUAL AND TANGENTS
-					for(int coordi=0;coordi<n_coord;coordi++){
-						if(myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi]>-1){
-							// residual
-							RR(myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi]) += Re_x(nodei*n_coord+coordi);
-							// loop over displacement dof for the tangent
-							for(int nodej=0;nodej<elem_size;nodej++){
-								for(int coordj=0;coordj<n_coord;coordj++){
-									if(myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj]>-1){
-										T K_x_x_nici_njcj = {myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi],myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj],Ke_x_x(nodei*n_coord+coordi,nodej*n_coord+coordj)};
-										KK_triplets.push_back(K_x_x_nici_njcj);
-									}
-								}
-								// rho tangent
-								if(myTissue.dof_fwd_map_rho[elem_ei[nodej]]>-1){
-									T K_x_rho_nici_nj = {myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi],myTissue.dof_fwd_map_rho[elem_ei[nodej]],Ke_x_rho(nodei*n_coord+coordi,nodej)};
-									KK_triplets.push_back(K_x_rho_nici_nj);
-								}
-								// c tangent
-								if(myTissue.dof_fwd_map_c[elem_ei[nodej]]>-1){
-									T K_x_c_nici_nj = {myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi],myTissue.dof_fwd_map_c[elem_ei[nodej]],Ke_x_c(nodei*n_coord+coordi,nodej)};
-									KK_triplets.push_back(K_x_c_nici_nj);
-								}
+		for(int nodei=0;nodei<elem_size;nodei++){
+			// ASSEMBLE DISPLACEMENT RESIDUAL AND TANGENTS
+			for(int coordi=0;coordi<n_coord;coordi++){
+				if(myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi]>-1){
+					// residual
+					RR(myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi]) += Re_x(nodei*n_coord+coordi);
+					// loop over displacement dof for the tangent
+					for(int nodej=0;nodej<elem_size;nodej++){
+						for(int coordj=0;coordj<n_coord;coordj++){
+							if(myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj]>-1){
+								T K_x_x_nici_njcj = {myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi],myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj],Ke_x_x(nodei*n_coord+coordi,nodej*n_coord+coordj)};
+								KK_triplets.push_back(K_x_x_nici_njcj);
 							}
 						}
-					}
-					// ASSEMBLE RHO
-					if(myTissue.dof_fwd_map_rho[elem_ei[nodei]]>-1){
-						RR(myTissue.dof_fwd_map_rho[elem_ei[nodei]]) += Re_rho(nodei);
-						// tangent of the rho
-						for(int nodej=0;nodej<elem_size;nodej++){
-							for(int coordj=0;coordj<n_coord;coordj++){
-								if(myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj]>-1){
-									T K_rho_x_ni_njcj = {myTissue.dof_fwd_map_rho[elem_ei[nodei]],myTissue.dof_fwd_map_x[elem_ei[nodej]*3+coordj],Ke_rho_x(nodei,nodej*n_coord+coordj)};
-									KK_triplets.push_back(K_rho_x_ni_njcj);
-								}
-							}
-							if(myTissue.dof_fwd_map_rho[elem_ei[nodej]]>-1){
-								T K_rho_rho_ni_nj = {myTissue.dof_fwd_map_rho[elem_ei[nodei]],myTissue.dof_fwd_map_rho[elem_ei[nodej]],Ke_rho_rho(nodei,nodej)};
-								KK_triplets.push_back(K_rho_rho_ni_nj);
-							}
-							if(myTissue.dof_fwd_map_c[elem_ei[nodej]]>-1){
-								T K_rho_c_ni_nj = {myTissue.dof_fwd_map_rho[elem_ei[nodei]],myTissue.dof_fwd_map_c[elem_ei[nodej]],Ke_rho_c(nodei,nodej)};
-								KK_triplets.push_back(K_rho_c_ni_nj);
-							}
+						// rho tangent
+						if(myTissue.dof_fwd_map_rho[elem_ei[nodej]]>-1){
+							T K_x_rho_nici_nj = {myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi],myTissue.dof_fwd_map_rho[elem_ei[nodej]],Ke_x_rho(nodei*n_coord+coordi,nodej)};
+							KK_triplets.push_back(K_x_rho_nici_nj);
 						}
-					}
-					// ASSEMBLE C
-					if(myTissue.dof_fwd_map_c[elem_ei[nodei]]>-1){
-						RR(myTissue.dof_fwd_map_c[elem_ei[nodei]]) += Re_c(nodei);
-						// tangent of the C
-						for(int nodej=0;nodej<elem_size;nodej++){
-							for(int coordj=0;coordj<n_coord;coordj++){
-								if(myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj]>-1){
-									T K_c_x_ni_njcj = {myTissue.dof_fwd_map_c[elem_ei[nodei]],myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj],Ke_c_x(nodei,nodej*n_coord+coordj)};
-									KK_triplets.push_back(K_c_x_ni_njcj);
-								}
-							}
-							if(myTissue.dof_fwd_map_rho[elem_ei[nodej]]>-1){
-								T K_c_rho_ni_nj = {myTissue.dof_fwd_map_c[elem_ei[nodei]],myTissue.dof_fwd_map_rho[elem_ei[nodej]],Ke_c_rho(nodei,nodej)};
-								KK_triplets.push_back(K_c_rho_ni_nj);
-							}
-							if(myTissue.dof_fwd_map_c[elem_ei[nodej]]>-1){
-								T K_c_c_ni_nj = {myTissue.dof_fwd_map_c[elem_ei[nodei]],myTissue.dof_fwd_map_c[elem_ei[nodej]],Ke_c_c(nodei,nodej)};
-								KK_triplets.push_back(K_c_c_ni_nj);
-							}
+						// c tangent
+						if(myTissue.dof_fwd_map_c[elem_ei[nodej]]>-1){
+							T K_x_c_nici_nj = {myTissue.dof_fwd_map_x[elem_ei[nodei]*n_coord+coordi],myTissue.dof_fwd_map_c[elem_ei[nodej]],Ke_x_c(nodei*n_coord+coordi,nodej)};
+							KK_triplets.push_back(K_x_c_nici_nj);
 						}
 					}
 				}
-				// FINISH LOOP OVER NODES (for assembly)
 			}
-			// FINISH LOOP OVER ELEMENTS
+			// ASSEMBLE RHO
+			if(myTissue.dof_fwd_map_rho[elem_ei[nodei]]>-1){
+				RR(myTissue.dof_fwd_map_rho[elem_ei[nodei]]) += Re_rho(nodei);
+				// tangent of the rho
+				for(int nodej=0;nodej<elem_size;nodej++){
+					for(int coordj=0;coordj<n_coord;coordj++){
+						if(myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj]>-1){
+							T K_rho_x_ni_njcj = {myTissue.dof_fwd_map_rho[elem_ei[nodei]],myTissue.dof_fwd_map_x[elem_ei[nodej]*3+coordj],Ke_rho_x(nodei,nodej*n_coord+coordj)};
+							KK_triplets.push_back(K_rho_x_ni_njcj);
+						}
+					}
+					if(myTissue.dof_fwd_map_rho[elem_ei[nodej]]>-1){
+						T K_rho_rho_ni_nj = {myTissue.dof_fwd_map_rho[elem_ei[nodei]],myTissue.dof_fwd_map_rho[elem_ei[nodej]],Ke_rho_rho(nodei,nodej)};
+						KK_triplets.push_back(K_rho_rho_ni_nj);
+					}
+					if(myTissue.dof_fwd_map_c[elem_ei[nodej]]>-1){
+						T K_rho_c_ni_nj = {myTissue.dof_fwd_map_rho[elem_ei[nodei]],myTissue.dof_fwd_map_c[elem_ei[nodej]],Ke_rho_c(nodei,nodej)};
+						KK_triplets.push_back(K_rho_c_ni_nj);
+					}
+				}
+			}
+			// ASSEMBLE C
+			if(myTissue.dof_fwd_map_c[elem_ei[nodei]]>-1){
+				RR(myTissue.dof_fwd_map_c[elem_ei[nodei]]) += Re_c(nodei);
+				// tangent of the C
+				for(int nodej=0;nodej<elem_size;nodej++){
+					for(int coordj=0;coordj<n_coord;coordj++){
+						if(myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj]>-1){
+							T K_c_x_ni_njcj = {myTissue.dof_fwd_map_c[elem_ei[nodei]],myTissue.dof_fwd_map_x[elem_ei[nodej]*n_coord+coordj],Ke_c_x(nodei,nodej*n_coord+coordj)};
+							KK_triplets.push_back(K_c_x_ni_njcj);
+						}
+					}
+					if(myTissue.dof_fwd_map_rho[elem_ei[nodej]]>-1){
+						T K_c_rho_ni_nj = {myTissue.dof_fwd_map_c[elem_ei[nodei]],myTissue.dof_fwd_map_rho[elem_ei[nodej]],Ke_c_rho(nodei,nodej)};
+						KK_triplets.push_back(K_c_rho_ni_nj);
+					}
+					if(myTissue.dof_fwd_map_c[elem_ei[nodej]]>-1){
+						T K_c_c_ni_nj = {myTissue.dof_fwd_map_c[elem_ei[nodei]],myTissue.dof_fwd_map_c[elem_ei[nodej]],Ke_c_c(nodei,nodej)};
+						KK_triplets.push_back(K_c_c_ni_nj);
+					}
+				}
+			}
+		}
+		// FINISH LOOP OVER NODES (for assembly)
+		}
+		// FINISH LOOP OVER ELEMENTS
 
 
-			// Extrapolate phi at the nodes to use in surface integrals
+		// Extrapolate phi at the nodes to use in surface integrals
+		// For different type of boundary condition. Not used in the publication
 /*#pragma omp parallel for
             for(int nodei=0;nodei<myTissue.n_node;nodei++){
                 node_phi[nodei] = node_phi[nodei]/node_ip_count[nodei];
                 node_dphifdu[nodei] = node_dphifdu[nodei]/node_ip_count[nodei];
                 node_dphifdrho[nodei] = node_dphifdrho[nodei]/node_ip_count[nodei];
                 node_dphifdc[nodei] = node_dphifdc[nodei]/node_ip_count[nodei];
-            }*/
+}*/
 
 
             // START LOOP OVER SURFACE ELEMENTS
@@ -749,31 +751,31 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
             // FINISH LOOP OVER SURFACE ELEMENTS
 
             // residual norm
-			double normRR = sqrt(RR.dot(RR));
-			if(iter==0){
-				//std::cout<<"first residual\n"<<RR<<"\nRe_rho\n"<<Re_rho<<"\nRe_c\n"<<Re_c<<"\n";
-				residuum0 = normRR;
-				if(residuum0<myTissue.tol){std::cout<<"no need to solve?: "<<residuum0<<"\n";break;}
-				//std::cout<<"first tangents\nKe_x_x\n"<<Ke_x_x<<"\nKe_x_rho\n"<<Ke_x_rho<<"\nKe_x_c\n"<<Ke_x_c<<"\n";
-				//std::cout<<"first tangents\nKe_rho_x\n"<<Ke_rho_x<<"\nKe_rho_rho\n"<<Ke_rho_rho<<"\nKe_rho_c\n"<<Ke_rho_c<<"\n";
-				//std::cout<<"first tangents\nKe_c_x\n"<<Ke_c_x<<"\nKe_c_rho\n"<<Ke_c_rho<<"\nKe_c_c\n"<<Ke_c_c<<"\n";
-			}
-			else{residuum = normRR/(1+residuum0);}
+		double normRR = sqrt(RR.dot(RR));
+		if(iter==0){
+			//std::cout<<"first residual\n"<<RR<<"\nRe_rho\n"<<Re_rho<<"\nRe_c\n"<<Re_c<<"\n";
+			residuum0 = normRR;
+			if(residuum0<myTissue.tol){std::cout<<"no need to solve?: "<<residuum0<<"\n";break;}
+			//std::cout<<"first tangents\nKe_x_x\n"<<Ke_x_x<<"\nKe_x_rho\n"<<Ke_x_rho<<"\nKe_x_c\n"<<Ke_x_c<<"\n";
+			//std::cout<<"first tangents\nKe_rho_x\n"<<Ke_rho_x<<"\nKe_rho_rho\n"<<Ke_rho_rho<<"\nKe_rho_c\n"<<Ke_rho_c<<"\n";
+			//std::cout<<"first tangents\nKe_c_x\n"<<Ke_c_x<<"\nKe_c_rho\n"<<Ke_c_rho<<"\nKe_c_c\n"<<Ke_c_c<<"\n";
+		}
+		else{residuum = normRR/(1+residuum0);}
 			
-			// SOLVE: one approach
-			//std::cout<<"solve\n";
-			//KK.setFromTriplets(KK_triplets.begin(), KK_triplets.end());
-			KK2.setFromTriplets(KK_triplets.begin(), KK_triplets.end());
-			KK2.makeCompressed();
-			//std::cout<<"KK2\n"<<KK2<<"\n";
+		// SOLVE: one approach
+		//std::cout<<"solve\n";
+		//KK.setFromTriplets(KK_triplets.begin(), KK_triplets.end());
+		KK2.setFromTriplets(KK_triplets.begin(), KK_triplets.end());
+		KK2.makeCompressed();
+		//std::cout<<"KK2\n"<<KK2<<"\n";
 
-			// Compute the numerical factorization
-            BICGsolver.compute(KK2);
-			if(BICGsolver.info()!=Eigen::Success) {
+		// Compute the numerical factorization
+        	BICGsolver.compute(KK2);
+		if(BICGsolver.info()!=Eigen::Success) {
                 std::cout << "Factorization failed" << "\n";
                 reset = true;
                 break;
-            }
+            	}
 
             // SOLVE: Use the factors to solve the linear system
             SOL = BICGsolver.solve(-1.*RR);
@@ -786,52 +788,52 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
                 break;
             }
 
-			// update the solution
-			double normSOL = sqrt(SOL.dot(SOL));
+	// update the solution
+	double normSOL = sqrt(SOL.dot(SOL));
 #pragma omp parallel for
-			for(int dofi=0;dofi<n_dof;dofi++)
-			{
-				std::vector<int> dof_inv_i = myTissue.dof_inv_map[dofi];
-				if(dof_inv_i[0]==0){
-					// displacement dof
-					int nodei  = dof_inv_i[1]/n_coord;
-					int coordi = dof_inv_i[1]%n_coord;
-					myTissue.node_x[nodei](coordi)+=SOL(dofi);
-				}else if(dof_inv_i[0]==1){
-					// rho dof
-					myTissue.node_rho[dof_inv_i[1]] += SOL(dofi);
-				}else if(dof_inv_i[0]==2){
-					// C dof
-					myTissue.node_c[dof_inv_i[1]] += SOL(dofi);
-				}
-			}
-			iter += 1;
-
-            // ADAPTIVE TIME STEP FOR NON-CONVERGED ITERATIONS
-			if(iter == myTissue.max_iter){
-			    std::cout<<"\nCheck, make sure residual is small enough\n";
-			    // Slow down but keep going forward
-                /*std::cout << "Decreasing time step" << "\n";
-                if(slow_iter == 0){
-                    // If first time, initiate slow_iter
-                    slow_iter = slowdown;
-                    total_slowdown = slowdown;
-                }
-                else{
-                    // Increment and keep track of total slowdown
-                    slow_iter = slow_iter*slowdown;
-                    total_slowdown = total_slowdown*slowdown;
-                }
-                time_step = time_step/slowdown;
-                save_freq = save_freq*slowdown;
-                step = step*slowdown;
-                total_steps = total_steps*slowdown;*/
-			}
-			std::cout<<"End of iteration : "<<iter<<",\nResidual before increment: "<<residuum<<",\nNorm of residual before increment: "<<normRR<<"\nIncrement norm: "<<normSOL<<"\n\n";
+	for(int dofi=0;dofi<n_dof;dofi++)
+	{
+		std::vector<int> dof_inv_i = myTissue.dof_inv_map[dofi];
+		if(dof_inv_i[0]==0){
+			// displacement dof
+			int nodei  = dof_inv_i[1]/n_coord;
+			int coordi = dof_inv_i[1]%n_coord;
+			myTissue.node_x[nodei](coordi)+=SOL(dofi);
+		}else if(dof_inv_i[0]==1){
+			// rho dof
+			myTissue.node_rho[dof_inv_i[1]] += SOL(dofi);
+		}else if(dof_inv_i[0]==2){
+			// C dof
+			myTissue.node_c[dof_inv_i[1]] += SOL(dofi);
 		}
-		// FINISH WHILE LOOP OF NEWTON INCREMENTS
+	}
+	iter += 1;
 
-		// CHECK DIVERGENCE AND ADJUST STEP
+        // ADAPTIVE TIME STEP FOR NON-CONVERGED ITERATIONS
+	if(iter == myTissue.max_iter){
+	std::cout<<"\nCheck, make sure residual is small enough\n";
+        // Slow down but keep going forward
+        /*std::cout << "Decreasing time step" << "\n";
+        if(slow_iter == 0){
+	// If first time, initiate slow_iter
+	slow_iter = slowdown;
+	total_slowdown = slowdown;
+	}
+	else{
+	// Increment and keep track of total slowdown
+	slow_iter = slow_iter*slowdown;
+	total_slowdown = total_slowdown*slowdown;
+	}
+	time_step = time_step/slowdown;
+	save_freq = save_freq*slowdown;
+	step = step*slowdown;
+	total_steps = total_steps*slowdown;*/
+	}
+	std::cout<<"End of iteration : "<<iter<<",\nResidual before increment: "<<residuum<<",\nNorm of residual before increment: "<<normRR<<"\nIncrement norm: "<<normSOL<<"\n\n";
+	}
+	// FINISH WHILE LOOP OF NEWTON INCREMENTS
+
+	// CHECK DIVERGENCE AND ADJUST STEP
         if(reset){
             std::cout << "Decreasing time step" << "\n";
             if(slow_iter == 0){
@@ -923,7 +925,7 @@ void sparseWoundSolver(tissue &myTissue, const std::string& filename, int save_f
 			std::stringstream ss;
 			ss << step+1;
 			std::string filename_step = filename + ss.str()+".vtk";
-            std::string filename_step2 = filename + "second_" + ss.str()+".vtk";
+            		std::string filename_step2 = filename + "second_" + ss.str()+".vtk";
 			std::string filename_step_tissue = filename + ss.str()+".txt";
 			writeParaview(myTissue,filename_step.c_str(),filename_step2.c_str());
 			writeTissue(myTissue,filename_step_tissue.c_str(),time);
