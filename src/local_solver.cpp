@@ -1269,7 +1269,8 @@ void evalForwardEulerUpdate2d(double dt, const std::vector<double> &local_parame
 // IMPLICIT LOCAL PROBLEM: structural update
 //========================================================//
 // THIS METHOD IS NOT FUNCTIONAL
-// NEEDS A LOT OF WORK
+// NEEDS A LOT OF WORK TO TRANSFORM TO 3D, THE 2D VERSION WAS USED IN THE ORIGINAL
+// CMAME 2017 PAPER AND FOR 2D THE IMPLICIT LOCAL PROBLEM IS MANAGEABLE
 void localWoundProblemImplicit(
         double dt, const std::vector<double> &local_parameters,
         const double &c, const double &rho,const Matrix3d &FF,
