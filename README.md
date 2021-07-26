@@ -24,7 +24,7 @@ cmake ../
 make 
 * This should have created the executable 'woundcpp3D'. You can directly run in terminal by doing: 
 ./woundcpp3D  
-* This would reproduce the simulation shown in Figure 5B of the paper. The file with the problem setup is in the 'src' folder and it is the 'results_circle_wound.cpp' file. We are currently working to provide a better interface to edit the problem setup in 'results_circle_wound.cpp' file. However, the code has been commented to guide edits to the code. 
+* This would reproduce the simulation shown in Figure 5B of the paper. The file with the problem setup is in the 'src' folder and it is the 'results_circle_wound.cpp' file. We are currently working to provide a better interface to edit the problem setup in 'results_circle_wound.cpp' file. However, the code has been commented to guide edits to the code. Namely, the sections for model parameters, solver parameters, mesh reading, boundary conditions, have been commented more to guide users on how to edit the problem setup. 
 
 Please get in touch in you have additional questions about using this code:
 abuganza@purdue.edu
