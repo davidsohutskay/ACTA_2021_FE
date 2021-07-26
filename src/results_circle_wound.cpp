@@ -137,6 +137,7 @@ int main(int argc, char *argv[])
 
 
     //---------------------------------//
+    // Fiber orientation for healthy and wound
     Matrix3d Rot90;Rot90 << 0.,-1.,0., 1.,0.,0., 0.,0.,1.;
     Vector3d s0_wound = Rot90*a0_wound;
     Vector3d s0_healthy= Rot90*a0_healthy;
@@ -159,6 +160,8 @@ int main(int argc, char *argv[])
 	// This will allow correct specification of the boundary values
 	std::vector<double> hexDimensions = {0.0,75.0,0.0,75.0,0.0,4.0};
 	std::vector<int> meshResolution =  {16,16,6};
+	// this is the actual mesh file used. Note that the mesh was generated with COMSOL. 
+	// there are other mesh readers available. 
 	std::string mesh_filename = "COMSOL_actual_wound_75x4.mphtxt";
     	HexMesh myMesh = readCOMSOLInput(mesh_filename, hexDimensions, meshResolution);
 
@@ -227,6 +230,10 @@ int main(int argc, char *argv[])
 	std::vector<double> ip_kappa0(myMesh.n_elements*IP_size,kappa0_healthy);
 	std::vector<Vector3d> ip_lamda0(myMesh.n_elements*IP_size,lamda0_healthy);
 	//
+	//*---------------------------------*//
+	// BOUNDARY AND INITIAL CONDITIONS 
+	//*---------------------------------*//
+	// the following parameters define the wound geometry
     	double tol_boundary = 1e-5;
 	// define elliptical cylinder
 	double x_center = 37.5;
@@ -245,15 +252,19 @@ int main(int argc, char *argv[])
 		double y_coord = myMesh.nodes[nodei](1);
 		double z_coord = myMesh.nodes[nodei](2);
 		// check if node is fixed
+		// for example, this is based on the flags available in the mesh, but can be easily changed to depend directly 
+		// on the coordinates of the node: x_coord, y_coord, z_coord
+		// Also note that initial conditions for global fields 'rho' and 'c' are applied at the nodes 
+		// Whereas initial conditions for structural parameters (phi, kappa, etc) are done below, at the integration points
 		if(myMesh.boundary_flag[nodei] == 2){ //   myMesh.boundary_flag[nodei]>1 && myMesh.boundary_flag[nodei]<6
 			// insert the boundary condition for displacement
 			std::cout<<"fixing node "<<nodei<<"\n";
 			eBC_x.insert ( std::pair<int,double>(nodei*3+0,myMesh.nodes[nodei](0)) ); // x coordinate
 			eBC_x.insert ( std::pair<int,double>(nodei*3+1,myMesh.nodes[nodei](1)) ); // y coordinate
 			eBC_x.insert ( std::pair<int,double>(nodei*3+2,myMesh.nodes[nodei](2)) ); // z coordinate
-			// insert the boundary condition for rho
+			// insert the boundary condition for cell density rho
 			eBC_rho.insert ( std::pair<int,double>(nodei,rho_healthy) );
-			// insert the boundary condition for c
+			// insert the boundary condition for chemokine c
 			eBC_c.insert   ( std::pair<int,double>(nodei,c_healthy) );
 		}
 		// check if it is in the center of the wound
@@ -269,7 +280,7 @@ int main(int argc, char *argv[])
 			}
 		}
 		//-----------------//
-		// Alternative version with a half-ellipse instead of a cylinder
+		// Alternative version with a half-ellipse instead of a cylinder not used at the moment
 //		double check_ellipsoid = pow((x_coord-x_center),2)/(x_axis*x_axis) + pow((y_coord-y_center),2)/(y_axis*y_axis) + pow((z_coord-z_center),2)/(z_axis*z_axis);
 //        if(check_ellipsoid<=1){
 //             //inside ellipsoid
@@ -279,6 +290,11 @@ int main(int argc, char *argv[])
 //        }
         //-----------------//
 	}
+	//
+	// INITIAL PARAMETERS FOR STRUCTURAL VARIABLES
+	//
+	// Need to loop over integration points for these 
+	//
 	for(int elemi=0;elemi<myMesh.n_elements;elemi++){
 		for(int ip=0;ip<IP_size;ip++)
 		{
@@ -312,6 +328,9 @@ int main(int argc, char *argv[])
                 		//std::cout<<myMesh.nodes[myMesh.elements[elemi][nodej]]<<"\n";
 				X_IP += R[nodej]*myMesh.nodes[myMesh.elements[elemi][nodej]];
 			}
+			//
+			// This is the actual test of whether the integration point is in the wound or outside the wound
+			//
 			//std::cout<<" IP node " << ip << " reference coordinates: " <<xi<< " " <<eta << " " <<zeta<< " "<<"\n";
             		//std::cout<<"Element " << elemi <<" IP node " << ip << " coordinates: " <<X_IP(0)<< " " <<X_IP(1) << " " <<X_IP(2)<< " "<<"\n";
             		double check_ellipse_ip = pow((X_IP(0)-x_center)*cos(alpha_ellipse)+(X_IP(1)-y_center)*sin(alpha_ellipse),2)/(x_axis*x_axis) +\
